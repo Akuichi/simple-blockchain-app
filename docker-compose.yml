@@ -1,0 +1,73 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:16-alpine
+    container_name: blockchain_postgres
+    environment:
+      POSTGRES_DB: blockchain
+      POSTGRES_USER: blockchain_user
+      POSTGRES_PASSWORD: blockchain_pass
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - blockchain_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U blockchain_user -d blockchain"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Laravel Backend
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: blockchain_backend
+    working_dir: /var/www
+    volumes:
+      - ./backend:/var/www
+      - ./backend/vendor:/var/www/vendor
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DB_CONNECTION: pgsql
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_DATABASE: blockchain
+      DB_USERNAME: blockchain_user
+      DB_PASSWORD: blockchain_pass
+    networks:
+      - blockchain_network
+    command: php artisan serve --host=0.0.0.0 --port=8000
+
+  # React Frontend
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: blockchain_frontend
+    working_dir: /app
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+    networks:
+      - blockchain_network
+    command: yarn dev --host 0.0.0.0
+
+volumes:
+  postgres_data:
+
+networks:
+  blockchain_network:
+    driver: bridge

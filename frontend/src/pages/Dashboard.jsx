@@ -1,0 +1,165 @@
+import { useState, useEffect } from 'react'
+import { validateBlockchain, getBlockchainStats, mineBlock } from '../services/api'
+
+function Dashboard() {
+  const [stats, setStats] = useState(null)
+  const [validation, setValidation] = useState(null)
+  const [loading, setLoading] = useState(false)
+  const [mining, setMining] = useState(false)
+
+  useEffect(() => {
+    fetchStats()
+    checkValidation()
+  }, [])
+
+  const fetchStats = async () => {
+    try {
+      const response = await getBlockchainStats()
+      setStats(response.data.data)
+    } catch (error) {
+      console.error('Error fetching stats:', error)
+    }
+  }
+
+  const checkValidation = async () => {
+    try {
+      setLoading(true)
+      const response = await validateBlockchain()
+      setValidation(response.data)
+    } catch (error) {
+      console.error('Error validating blockchain:', error)
+      setValidation({ success: false, message: 'Failed to validate blockchain' })
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleMineBlock = async () => {
+    try {
+      setMining(true)
+      const response = await mineBlock()
+      if (response.data.success) {
+        alert('Block mined successfully!')
+        fetchStats()
+        checkValidation()
+      }
+    } catch (error) {
+      const message = error.response?.data?.message || 'Failed to mine block'
+      alert(message)
+    } finally {
+      setMining(false)
+    }
+  }
+
+  return (
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <h2 className="text-3xl font-bold text-gray-900">Dashboard</h2>
+        <div className="flex space-x-3">
+          <button
+            onClick={handleMineBlock}
+            disabled={mining}
+            className="btn btn-success disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {mining ? 'Mining...' : 'Mine Block'}
+          </button>
+          <button
+            onClick={checkValidation}
+            disabled={loading}
+            className="btn btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {loading ? 'Validating...' : 'Validate Chain'}
+          </button>
+        </div>
+      </div>
+
+      {/* Blockchain Status */}
+      {validation && (
+        <div
+          className={`card ${
+            validation.success
+              ? 'bg-green-50 border-2 border-green-200'
+              : 'bg-red-50 border-2 border-red-200'
+          }`}
+        >
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-xl font-bold mb-2">
+                {validation.success ? '✅ Blockchain is Valid' : '⚠️ Blockchain is Invalid'}
+              </h3>
+              <p className={validation.success ? 'text-green-700' : 'text-red-700'}>
+                {validation.message}
+              </p>
+              {validation.data?.errors && validation.data.errors.length > 0 && (
+                <ul className="mt-2 text-red-600 text-sm">
+                  {validation.data.errors.map((error, index) => (
+                    <li key={index}>• {error}</li>
+                  ))}
+                </ul>
+              )}
+            </div>
+            <div className="text-5xl">
+              {validation.success ? '🔒' : '🔓'}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Statistics Grid */}
+      {stats && (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="card bg-gradient-to-br from-blue-500 to-blue-600 text-white">
+            <h3 className="text-sm font-medium opacity-90">Total Blocks</h3>
+            <p className="text-4xl font-bold mt-2">{stats.total_blocks}</p>
+          </div>
+
+          <div className="card bg-gradient-to-br from-purple-500 to-purple-600 text-white">
+            <h3 className="text-sm font-medium opacity-90">Total Transactions</h3>
+            <p className="text-4xl font-bold mt-2">{stats.total_transactions}</p>
+          </div>
+
+          <div className="card bg-gradient-to-br from-yellow-500 to-yellow-600 text-white">
+            <h3 className="text-sm font-medium opacity-90">Pending Transactions</h3>
+            <p className="text-4xl font-bold mt-2">{stats.pending_transactions}</p>
+          </div>
+
+          <div className="card bg-gradient-to-br from-green-500 to-green-600 text-white">
+            <h3 className="text-sm font-medium opacity-90">Mined Transactions</h3>
+            <p className="text-4xl font-bold mt-2">{stats.mined_transactions}</p>
+          </div>
+        </div>
+      )}
+
+      {/* Last Block Info */}
+      {stats?.last_block && (
+        <div className="card">
+          <h3 className="text-xl font-bold mb-4">Last Block</h3>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <p className="text-sm text-gray-600">Block Index</p>
+              <p className="font-mono font-bold text-lg">{stats.last_block.index}</p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-600">Timestamp</p>
+              <p className="font-mono">
+                {new Date(stats.last_block.timestamp).toLocaleString()}
+              </p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-600">Difficulty</p>
+              <p className="font-mono font-bold text-lg">{stats.difficulty}</p>
+            </div>
+          </div>
+          <div className="mt-4">
+            <p className="text-sm text-gray-600">Hash</p>
+            <p className="font-mono text-xs break-all bg-gray-100 p-2 rounded mt-1">
+              {stats.last_block.hash}
+            </p>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+export default Dashboard
