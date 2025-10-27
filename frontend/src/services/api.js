@@ -18,6 +18,7 @@ export const getAllTransactions = () => api.get('/transactions');
 export const mineBlock = () => api.post('/block/mine');
 export const getAllBlocks = () => api.get('/blocks');
 export const getBlockById = (id) => api.get(`/blocks/${id}`);
+export const tamperBlock = (id) => api.post(`/block/tamper/${id}`);
 
 // Blockchain endpoints
 export const validateBlockchain = () => api.get('/blockchain/validate');

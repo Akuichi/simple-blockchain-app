@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react'
-import { validateBlockchain, getBlockchainStats, mineBlock } from '../services/api'
+import { validateBlockchain, getBlockchainStats, mineBlock, tamperBlock } from '../services/api'
 
 function Dashboard() {
   const [stats, setStats] = useState(null)
   const [validation, setValidation] = useState(null)
   const [loading, setLoading] = useState(false)
   const [mining, setMining] = useState(false)
+  const [tampering, setTampering] = useState(false)
 
   useEffect(() => {
     fetchStats()
@@ -51,6 +52,44 @@ function Dashboard() {
     }
   }
 
+  const handleTamperBlock = async () => {
+    if (!stats?.last_block) {
+      alert('No blocks available to tamper with')
+      return
+    }
+
+    const confirmTamper = window.confirm(
+      '⚠️ This will tamper with the last block to demonstrate blockchain immutability.\n\n' +
+      'After tampering:\n' +
+      '• The blockchain validation will fail\n' +
+      '• This demonstrates how blockchain detects tampering\n' +
+      '• You can fix it by mining a new block\n\n' +
+      'Continue with tampering?'
+    )
+
+    if (!confirmTamper) return
+
+    try {
+      setTampering(true)
+      const response = await tamperBlock(stats.last_block.id)
+      if (response.data.success) {
+        alert(
+          '🔓 Block tampered successfully!\n\n' +
+          `Original hash: ${response.data.data.original_hash}\n` +
+          `Tampered hash: ${response.data.data.tampered_hash}\n\n` +
+          'Now click "Validate Chain" to see how blockchain detects tampering!'
+        )
+        fetchStats()
+        checkValidation()
+      }
+    } catch (error) {
+      const message = error.response?.data?.message || 'Failed to tamper with block'
+      alert(message)
+    } finally {
+      setTampering(false)
+    }
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -61,14 +100,22 @@ function Dashboard() {
             disabled={mining}
             className="btn btn-success disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {mining ? 'Mining...' : 'Mine Block'}
+            {mining ? 'Mining...' : '⛏️ Mine Block'}
+          </button>
+          <button
+            onClick={handleTamperBlock}
+            disabled={tampering || !stats?.last_block || stats?.last_block?.index === 0}
+            className="btn bg-red-500 hover:bg-red-600 text-white disabled:opacity-50 disabled:cursor-not-allowed"
+            title="Tamper with last block to demonstrate immutability"
+          >
+            {tampering ? 'Tampering...' : '🔓 Tamper Block'}
           </button>
           <button
             onClick={checkValidation}
             disabled={loading}
             className="btn btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {loading ? 'Validating...' : 'Validate Chain'}
+            {loading ? 'Validating...' : '🔍 Validate Chain'}
           </button>
         </div>
       </div>

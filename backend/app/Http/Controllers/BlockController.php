@@ -106,4 +106,52 @@ class BlockController extends Controller
             ],
         ]);
     }
+
+    /**
+     * Tamper with a block (for demonstration purposes only).
+     * This demonstrates how tampering breaks blockchain immutability.
+     */
+    public function tamper(int $id): JsonResponse
+    {
+        try {
+            $block = Block::find($id);
+
+            if (!$block) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Block not found',
+                ], 404);
+            }
+
+            if ($block->index_no === 0) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Cannot tamper with genesis block',
+                ], 400);
+            }
+
+            // Tamper with the block by changing its hash
+            $originalHash = $block->current_hash;
+            $block->current_hash = 'TAMPERED_' . substr($originalHash, 9);
+            $block->save();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Block tampered successfully (for demonstration)',
+                'data' => [
+                    'block_id' => $block->id,
+                    'index' => $block->index_no,
+                    'original_hash' => $originalHash,
+                    'tampered_hash' => $block->current_hash,
+                    'warning' => 'Blockchain validation will now fail!',
+                ],
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to tamper with block',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
 }

@@ -7,9 +7,20 @@ A full-stack blockchain application built with Laravel 12, PostgreSQL, ReactJS, 
 - **Transaction Management**: Create and manage blockchain transactions
 - **Block Mining**: Simulate proof of work mining with configurable difficulty
 - **Blockchain Validation**: Verify chain integrity and detect tampering
-- **Immutability**: Once mined, blocks cannot be modified
+- **Tamper Detection**: Demonstrate blockchain immutability with tamper feature
+- **Immutability**: Once mined, blocks cannot be modified without detection
 - **Real-time Dashboard**: Monitor blockchain statistics and status
 - **Modern UI**: Clean, responsive interface built with React and TailwindCSS
+- **Random Transactions**: Quick data generation for testing
+- **Comprehensive Testing**: 98.2% test coverage (56/57 tests passing)
+
+## 📚 Documentation
+
+- **[SECURITY_IMPLEMENTATION.md](SECURITY_IMPLEMENTATION.md)** - Complete security explanation covering SHA-256 hashing, chain linking, proof of work, and tamper detection
+- **[TESTS_SUMMARY.md](TESTS_SUMMARY.md)** - Comprehensive test coverage documentation
+- **[SECURITY.md](SECURITY.md)** - Security considerations and best practices
+- **[QUICKSTART.md](QUICKSTART.md)** - Quick setup guide
+- **[GETTING_STARTED.md](GETTING_STARTED.md)** - Detailed installation and usage guide
 
 ## 🏗️ Architecture
 
@@ -486,19 +497,6 @@ docker-compose down
 docker-compose down -v
 ```
 
-## 📝 Assignment Submission Checklist
-
-- [ ] Source code (backend + frontend)
-- [ ] Database migrations and seeders
-- [ ] README.md (this file) explaining blockchain logic
-- [ ] Screenshots of:
-  - [ ] Transaction creation
-  - [ ] Block mining process
-  - [ ] Blockchain validation (valid)
-  - [ ] Blockchain validation (tampered/invalid)
-  - [ ] Complete blockchain view
-- [ ] One-page written explanation of security implementation
-
 ## 🤝 Contributing
 
 This is an educational project. Suggestions for improvement:
@@ -512,14 +510,6 @@ This is an educational project. Suggestions for improvement:
 ## 📄 License
 
 This project is created for educational purposes.
-
-## 👤 Author
-
-**Your Name**  
-Student ID: XXXXXXX  
-Course: Blockchain Technology  
-Due Date: October 24, 2025
-
 ---
 
 **Note**: This is a simplified blockchain implementation for educational purposes. Production blockchain systems require additional security measures, consensus mechanisms, and network protocols.
