@@ -145,7 +145,7 @@ function Dashboard() {
           </button>
           <button
             onClick={handleRebuildChain}
-            disabled={rebuilding || validation?.success}
+            disabled={rebuilding || validation?.data?.valid !== false}
             className="btn bg-orange-500 hover:bg-orange-600 text-white disabled:opacity-50 disabled:cursor-not-allowed"
             title="Rebuild chain from first invalid block"
           >
@@ -165,7 +165,7 @@ function Dashboard() {
       {validation && (
         <div
           className={`card ${
-            validation.success
+            validation.data?.valid
               ? 'bg-green-50 border-2 border-green-200'
               : 'bg-red-50 border-2 border-red-200'
           }`}
@@ -173,10 +173,12 @@ function Dashboard() {
           <div className="flex items-center justify-between">
             <div>
               <h3 className="text-xl font-bold mb-2">
-                {validation.success ? '✅ Blockchain is Valid' : '⚠️ Blockchain is Invalid'}
+                {validation.data?.valid ? '✅ Blockchain is Valid' : '⚠️ Blockchain is Invalid'}
               </h3>
-              <p className={validation.success ? 'text-green-700' : 'text-red-700'}>
-                {validation.message}
+              <p className={validation.data?.valid ? 'text-green-700' : 'text-red-700'}>
+                {validation.data?.valid 
+                  ? `All ${validation.data?.blocks_checked || 0} blocks verified successfully!`
+                  : 'Chain validation failed - tampering detected!'}
               </p>
               {validation.data?.errors && validation.data.errors.length > 0 && (
                 <ul className="mt-2 text-red-600 text-sm">
@@ -187,7 +189,7 @@ function Dashboard() {
               )}
             </div>
             <div className="text-5xl">
-              {validation.success ? '🔒' : '🔓'}
+              {validation.data?.valid ? '🔒' : '🔓'}
             </div>
           </div>
         </div>
