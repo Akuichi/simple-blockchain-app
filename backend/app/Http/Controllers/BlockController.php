@@ -33,8 +33,16 @@ class BlockController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Block mined successfully',
-                'data' => $block,
-            ], 201);
+                'data' => [
+                    'id' => $block->id,
+                    'index' => $block->index_no,
+                    'previous_hash' => $block->previous_hash,
+                    'current_hash' => $block->current_hash,
+                    'nonce' => $block->nonce,
+                    'timestamp' => $block->timestamp,
+                    'transactions' => $block->transactions,
+                ],
+            ], 200);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -51,7 +59,18 @@ class BlockController extends Controller
     {
         $blocks = Block::with('transactions')
             ->orderBy('index_no', 'asc')
-            ->get();
+            ->get()
+            ->map(function ($block) {
+                return [
+                    'id' => $block->id,
+                    'index' => $block->index_no,
+                    'previous_hash' => $block->previous_hash,
+                    'current_hash' => $block->current_hash,
+                    'nonce' => $block->nonce,
+                    'timestamp' => $block->timestamp,
+                    'transactions' => $block->transactions,
+                ];
+            });
 
         return response()->json([
             'success' => true,
@@ -76,7 +95,15 @@ class BlockController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $block,
+            'data' => [
+                'id' => $block->id,
+                'index' => $block->index_no,
+                'previous_hash' => $block->previous_hash,
+                'current_hash' => $block->current_hash,
+                'nonce' => $block->nonce,
+                'timestamp' => $block->timestamp,
+                'transactions' => $block->transactions,
+            ],
         ]);
     }
 }

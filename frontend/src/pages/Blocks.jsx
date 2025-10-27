@@ -63,7 +63,7 @@ function Blocks() {
               {/* Block Card */}
               <div
                 className={`card cursor-pointer transition-all hover:shadow-lg ${
-                  block.index_no === 0
+                  block.index === 0
                     ? 'border-2 border-purple-300 bg-purple-50'
                     : 'border-2 border-gray-200'
                 } ${selectedBlock?.id === block.id ? 'ring-2 ring-primary' : ''}`}
@@ -73,12 +73,12 @@ function Blocks() {
                   {/* Block Icon */}
                   <div
                     className={`w-16 h-16 rounded-lg flex items-center justify-center text-2xl flex-shrink-0 ${
-                      block.index_no === 0
+                      block.index === 0
                         ? 'bg-purple-500 text-white'
                         : 'bg-gradient-to-br from-primary to-secondary text-white'
                     }`}
                   >
-                    {block.index_no === 0 ? '🏁' : '⬜'}
+                    {block.index === 0 ? '🏁' : '⬜'}
                   </div>
 
                   {/* Block Info */}
@@ -86,7 +86,7 @@ function Blocks() {
                     <div className="flex justify-between items-start mb-3">
                       <div>
                         <h3 className="text-xl font-bold">
-                          {block.index_no === 0 ? 'Genesis Block' : `Block #${block.index_no}`}
+                          {block.index === 0 ? 'Genesis Block' : `Block #${block.index}`}
                         </h3>
                         <p className="text-sm text-gray-500">
                           {new Date(block.timestamp).toLocaleString()}
@@ -122,7 +122,7 @@ function Blocks() {
                       </div>
                       <div>
                         <span className="text-gray-600">Index: </span>
-                        <span className="font-bold">{block.index_no}</span>
+                        <span className="font-bold">{block.index}</span>
                       </div>
                     </div>
                   </div>

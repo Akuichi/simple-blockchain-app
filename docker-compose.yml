@@ -28,9 +28,6 @@ services:
       dockerfile: Dockerfile
     container_name: blockchain_backend
     working_dir: /var/www
-    volumes:
-      - ./backend:/var/www
-      - ./backend/vendor:/var/www/vendor
     ports:
       - "8000:8000"
     depends_on:
@@ -54,9 +51,6 @@ services:
       dockerfile: Dockerfile
     container_name: blockchain_frontend
     working_dir: /app
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules
     ports:
       - "5173:5173"
     depends_on:

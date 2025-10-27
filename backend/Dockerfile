@@ -23,11 +23,14 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 COPY . /var/www
 
 # Install Laravel dependencies
-RUN composer install --no-interaction --optimize-autoloader --no-dev || true
+RUN composer install --no-interaction --optimize-autoloader || true
+
+# Create required directories
+RUN mkdir -p /var/www/bootstrap/cache /var/www/storage/framework/sessions /var/www/storage/framework/views /var/www/storage/framework/cache /var/www/storage/logs
 
 # Set permissions
 RUN chown -R www-data:www-data /var/www \
-    && chmod -R 755 /var/www/storage || true
+    && chmod -R 775 /var/www/storage /var/www/bootstrap/cache
 
 # Expose port 8000
 EXPOSE 8000

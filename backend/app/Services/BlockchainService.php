@@ -53,10 +53,15 @@ class BlockchainService
     public function calculateHash(
         int $index,
         string $previousHash,
-        int $timestamp,
+        int|string $timestamp,
         array $transactions,
         int $nonce
     ): string {
+        // Convert timestamp to int if it's a string
+        if (is_string($timestamp)) {
+            $timestamp = strtotime($timestamp) ?: time();
+        }
+        
         $data = $index . $previousHash . $timestamp . json_encode($transactions) . $nonce;
         return hash('sha256', $data);
     }
@@ -128,7 +133,7 @@ class BlockchainService
     private function proofOfWork(
         int $index,
         string $previousHash,
-        int $timestamp,
+        int|string $timestamp,
         array $transactions,
         int $startNonce
     ): array {
@@ -175,7 +180,7 @@ class BlockchainService
 
             // Validate previous hash link
             if ($block->previous_hash !== $previousBlock->current_hash) {
-                $errors[] = "Block {$block->index_no}: Previous hash mismatch";
+                $errors[] = "Block {$block->index_no}: Chain broken - previous hash does not match previous block's hash";
             }
 
             // Validate current hash
@@ -198,7 +203,7 @@ class BlockchainService
             );
 
             if ($block->current_hash !== $calculatedHash) {
-                $errors[] = "Block {$block->index_no}: Hash is invalid";
+                $errors[] = "Block {$block->index_no}: Invalid hash - hash does not match calculated value";
             }
 
             // Validate proof of work
@@ -233,6 +238,7 @@ class BlockchainService
             'pending_transactions' => $pendingTransactions,
             'mined_transactions' => $minedTransactions,
             'last_block' => $lastBlock ? [
+                'id' => $lastBlock->id,
                 'index' => $lastBlock->index_no,
                 'hash' => $lastBlock->current_hash,
                 'timestamp' => $lastBlock->timestamp,

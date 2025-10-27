@@ -16,9 +16,24 @@ class Transaction extends Model
     ];
 
     protected $casts = [
-        'amount' => 'decimal:2',
+        'amount' => 'float',
         'timestamp' => 'datetime',
     ];
+
+    protected $attributes = [
+        'status' => 'pending',
+    ];
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($transaction) {
+            if (!$transaction->timestamp) {
+                $transaction->timestamp = now();
+            }
+        });
+    }
 
     /**
      * Get the blocks that contain this transaction.

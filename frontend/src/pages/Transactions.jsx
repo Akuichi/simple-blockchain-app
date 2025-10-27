@@ -36,7 +36,8 @@ function Transactions() {
       const response = await createTransaction(formData)
       if (response.data.success) {
         alert('Transaction created successfully!')
-        setFormData({ sender: '', receiver: '', amount: '' })
+        // Keep sender and receiver, only clear amount
+        setFormData({ ...formData, amount: '' })
         fetchTransactions()
       }
     } catch (error) {
@@ -47,6 +48,38 @@ function Transactions() {
       } else {
         alert('Failed to create transaction')
       }
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const createRandomTransaction = async () => {
+    const names = ['Alice', 'Bob', 'Charlie', 'David', 'Eve', 'Frank', 'Grace', 'Henry']
+    const randomSender = names[Math.floor(Math.random() * names.length)]
+    let randomReceiver = names[Math.floor(Math.random() * names.length)]
+    
+    // Make sure sender and receiver are different
+    while (randomReceiver === randomSender) {
+      randomReceiver = names[Math.floor(Math.random() * names.length)]
+    }
+    
+    const randomAmount = (Math.random() * 1000 + 1).toFixed(2)
+    
+    const randomData = {
+      sender: randomSender,
+      receiver: randomReceiver,
+      amount: randomAmount
+    }
+    
+    try {
+      setLoading(true)
+      const response = await createTransaction(randomData)
+      if (response.data.success) {
+        alert(`Random transaction created!\n${randomSender} → ${randomReceiver}: $${randomAmount}`)
+        fetchTransactions()
+      }
+    } catch (error) {
+      alert('Failed to create random transaction')
     } finally {
       setLoading(false)
     }
@@ -107,13 +140,23 @@ function Transactions() {
               />
             </div>
           </div>
-          <button
-            type="submit"
-            disabled={loading}
-            className="btn btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {loading ? 'Creating...' : 'Create Transaction'}
-          </button>
+          <div className="flex gap-3">
+            <button
+              type="submit"
+              disabled={loading}
+              className="btn btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {loading ? 'Creating...' : 'Create Transaction'}
+            </button>
+            <button
+              type="button"
+              onClick={createRandomTransaction}
+              disabled={loading}
+              className="btn btn-secondary disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              🎲 Create Random Transaction
+            </button>
+          </div>
         </form>
       </div>
 

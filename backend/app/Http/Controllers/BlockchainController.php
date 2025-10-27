@@ -21,15 +21,10 @@ class BlockchainController extends Controller
     {
         $validation = $this->blockchainService->validateChain();
 
-        $statusCode = $validation['valid'] ? 200 : 400;
-
         return response()->json([
-            'success' => $validation['valid'],
-            'message' => $validation['valid'] 
-                ? 'Blockchain is valid and secure' 
-                : 'Blockchain validation failed',
+            'success' => true,
             'data' => $validation,
-        ], $statusCode);
+        ], 200);
     }
 
     /**
