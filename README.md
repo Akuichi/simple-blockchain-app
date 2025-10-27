@@ -7,7 +7,8 @@ A full-stack blockchain application built with Laravel 12, PostgreSQL, ReactJS, 
 - **Transaction Management**: Create and manage blockchain transactions
 - **Block Mining**: Simulate proof of work mining with configurable difficulty
 - **Blockchain Validation**: Verify chain integrity and detect tampering
-- **Tamper Detection**: Demonstrate blockchain immutability with tamper feature
+- **Tamper Detection**: Demonstrate blockchain immutability with interactive tamper/rebuild feature
+- **Chain Rebuild**: Automatically fix tampered blocks by recalculating and re-mining
 - **Immutability**: Once mined, blocks cannot be modified without detection
 - **Real-time Dashboard**: Monitor blockchain statistics and status
 - **Modern UI**: Clean, responsive interface built with React and TailwindCSS
@@ -16,6 +17,7 @@ A full-stack blockchain application built with Laravel 12, PostgreSQL, ReactJS, 
 
 ## 📚 Documentation
 
+- **[HOW_TO_FIX_TAMPERED_CHAIN.md](HOW_TO_FIX_TAMPERED_CHAIN.md)** - Complete guide on fixing tampered blockchains with rebuild feature
 - **[SECURITY_IMPLEMENTATION.md](SECURITY_IMPLEMENTATION.md)** - Complete security explanation covering SHA-256 hashing, chain linking, proof of work, and tamper detection
 - **[TESTS_SUMMARY.md](TESTS_SUMMARY.md)** - Comprehensive test coverage documentation
 - **[SECURITY.md](SECURITY.md)** - Security considerations and best practices

@@ -20,6 +20,7 @@ Route::prefix('v1')->group(function () {
     // Blockchain routes
     Route::get('/blockchain/validate', [BlockchainController::class, 'validate']);
     Route::get('/blockchain/stats', [BlockchainController::class, 'getStats']);
+    Route::post('/blockchain/rebuild', [BlockchainController::class, 'rebuildChain']);
     
     // Tamper route (for demonstration purposes only)
     Route::post('/block/tamper/{id}', [BlockController::class, 'tamper']);

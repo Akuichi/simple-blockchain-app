@@ -23,5 +23,6 @@ export const tamperBlock = (id) => api.post(`/block/tamper/${id}`);
 // Blockchain endpoints
 export const validateBlockchain = () => api.get('/blockchain/validate');
 export const getBlockchainStats = () => api.get('/blockchain/stats');
+export const rebuildBlockchain = () => api.post('/blockchain/rebuild');
 
 export default api;

@@ -246,4 +246,74 @@ class BlockchainService
             'difficulty' => $this->difficulty,
         ];
     }
+
+    /**
+     * Rebuild the chain from a specific block index forward.
+     * This recalculates and re-mines all blocks after tampering.
+     */
+    public function rebuildChain(int $fromIndex): array
+    {
+        return DB::transaction(function () use ($fromIndex) {
+            $blocks = Block::where('index_no', '>=', $fromIndex)
+                ->orderBy('index_no', 'asc')
+                ->get();
+            
+            if ($blocks->isEmpty()) {
+                return [
+                    'success' => false,
+                    'message' => 'No blocks found to rebuild',
+                ];
+            }
+
+            $rebuiltCount = 0;
+            
+            foreach ($blocks as $block) {
+                // Get the previous block
+                $previousBlock = Block::where('index_no', $block->index_no - 1)->first();
+                
+                if (!$previousBlock && $block->index_no !== 0) {
+                    return [
+                        'success' => false,
+                        'message' => "Cannot rebuild - previous block not found for block {$block->index_no}",
+                    ];
+                }
+
+                // Update previous hash
+                $block->previous_hash = $previousBlock ? $previousBlock->current_hash : '0';
+
+                // Get transaction data
+                $transactionData = $block->transactions->map(function ($transaction) {
+                    return [
+                        'id' => $transaction->id,
+                        'sender' => $transaction->sender,
+                        'receiver' => $transaction->receiver,
+                        'amount' => $transaction->amount,
+                        'timestamp' => $transaction->timestamp->timestamp,
+                    ];
+                })->toArray();
+
+                // Re-mine the block (proof of work)
+                $hash = $this->proofOfWork(
+                    $block->index_no,
+                    $block->previous_hash,
+                    $block->timestamp->timestamp,
+                    $transactionData,
+                    0 // Start nonce from 0
+                );
+
+                $block->current_hash = $hash['hash'];
+                $block->nonce = $hash['nonce'];
+                $block->save();
+
+                $rebuiltCount++;
+            }
+
+            return [
+                'success' => true,
+                'message' => "Successfully rebuilt {$rebuiltCount} block(s)",
+                'rebuilt_count' => $rebuiltCount,
+                'from_index' => $fromIndex,
+            ];
+        });
+    }
 }

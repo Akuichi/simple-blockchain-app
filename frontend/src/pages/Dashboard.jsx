@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { validateBlockchain, getBlockchainStats, mineBlock, tamperBlock } from '../services/api'
+import { validateBlockchain, getBlockchainStats, mineBlock, tamperBlock, rebuildBlockchain } from '../services/api'
 
 function Dashboard() {
   const [stats, setStats] = useState(null)
@@ -7,6 +7,7 @@ function Dashboard() {
   const [loading, setLoading] = useState(false)
   const [mining, setMining] = useState(false)
   const [tampering, setTampering] = useState(false)
+  const [rebuilding, setRebuilding] = useState(false)
 
   useEffect(() => {
     fetchStats()
@@ -63,7 +64,7 @@ function Dashboard() {
       'After tampering:\n' +
       '• The blockchain validation will fail\n' +
       '• This demonstrates how blockchain detects tampering\n' +
-      '• You can fix it by mining a new block\n\n' +
+      '• You can fix it by clicking "Rebuild Chain"\n\n' +
       'Continue with tampering?'
     )
 
@@ -77,7 +78,7 @@ function Dashboard() {
           '🔓 Block tampered successfully!\n\n' +
           `Original hash: ${response.data.data.original_hash}\n` +
           `Tampered hash: ${response.data.data.tampered_hash}\n\n` +
-          'Now click "Validate Chain" to see how blockchain detects tampering!'
+          'Now click "Validate Chain" to see the errors, then "Rebuild Chain" to fix!'
         )
         fetchStats()
         checkValidation()
@@ -87,6 +88,38 @@ function Dashboard() {
       alert(message)
     } finally {
       setTampering(false)
+    }
+  }
+
+  const handleRebuildChain = async () => {
+    const confirmRebuild = window.confirm(
+      '🔧 This will rebuild the blockchain from the first invalid block.\n\n' +
+      'The rebuild process will:\n' +
+      '• Recalculate all block hashes\n' +
+      '• Re-mine blocks with proof of work\n' +
+      '• Restore blockchain integrity\n\n' +
+      'Continue with rebuild?'
+    )
+
+    if (!confirmRebuild) return
+
+    try {
+      setRebuilding(true)
+      const response = await rebuildBlockchain()
+      if (response.data.success) {
+        alert(
+          '✅ Chain rebuilt successfully!\n\n' +
+          response.data.message + '\n\n' +
+          'The blockchain is now valid again!'
+        )
+        fetchStats()
+        checkValidation()
+      }
+    } catch (error) {
+      const message = error.response?.data?.message || 'Failed to rebuild chain'
+      alert(message)
+    } finally {
+      setRebuilding(false)
     }
   }
 
@@ -109,6 +142,14 @@ function Dashboard() {
             title="Tamper with last block to demonstrate immutability"
           >
             {tampering ? 'Tampering...' : '🔓 Tamper Block'}
+          </button>
+          <button
+            onClick={handleRebuildChain}
+            disabled={rebuilding || validation?.success}
+            className="btn bg-orange-500 hover:bg-orange-600 text-white disabled:opacity-50 disabled:cursor-not-allowed"
+            title="Rebuild chain from first invalid block"
+          >
+            {rebuilding ? 'Rebuilding...' : '🔧 Rebuild Chain'}
           </button>
           <button
             onClick={checkValidation}
